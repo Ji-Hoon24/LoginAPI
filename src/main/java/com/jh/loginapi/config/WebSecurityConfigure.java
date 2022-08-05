@@ -43,6 +43,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .disable();
         http.addFilterBefore(new JwtAuthenticationFilter(jwtConfig), UsernamePasswordAuthenticationFilter.class).authorizeRequests();
+        //TODO 스프링 시큐리티의 antMatchers를 사용 가능해야 함
     }
 
     @Bean

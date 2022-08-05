@@ -7,6 +7,7 @@ import com.jh.loginapi.member.dto.request.JoinRequest;
 import com.jh.loginapi.member.dto.request.LoginRequest;
 import com.jh.loginapi.member.dto.result.LoginResult;
 import com.jh.loginapi.member.domain.MemberRepository;
+import com.jh.loginapi.member.dto.result.MyProfileResult;
 import com.jh.loginapi.redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -69,14 +70,27 @@ public class MemberService {
         members.afterLoginSuccess();
         memberRepository.save(members);
 
-        return this.loginTokenCreate(members);
+        return this.tokenCreate(members);
     }
 
-    private LoginResult loginTokenCreate(Members members) {
+    public LoginResult tokenCreate(Members members) {
         String accessToken = jwtConfig.createAccessToken(members);
         String refreshToken = jwtConfig.createRefreshToken();
 
         redisService.saveRefreshToken(members.getMemberNo(), refreshToken);
         return LoginResult.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+    }
+
+    public MyProfileResult myProfile(long memberNo) {
+        Members members = memberRepository.findByMemberNo(memberNo).orElseThrow(
+                () -> new IllegalArgumentException("회원정보가 없습니다.")
+        );
+
+        return MyProfileResult.builder()
+                .email(members.getEmail())
+                .name(members.getName())
+                .nickname(members.getNickname())
+                .phoneNum(members.getPhoneNum())
+                .build();
     }
 }

@@ -57,20 +57,6 @@ public class JwtConfig {
                 .sign(Algorithm.HMAC512(secret));
     }
 
-    public void updateRefreshToken(long memberNo, String refreshToken) {
-        String redisRefreshToken = redisService.findRefreshToken(memberNo);
-        if(redisRefreshToken == null || redisRefreshToken.equals("")) {
-            redisService.saveRefreshToken(memberNo, refreshToken);
-        }
-    }
-
-    public void destroyRefreshToken(long memberNo) {
-        String redisRefreshToken = redisService.findRefreshToken(memberNo);
-        if(redisRefreshToken == null || redisRefreshToken.equals("")) {
-            redisService.delete(String.valueOf(memberNo));
-        }
-    }
-
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(accessHeader)).filter(
                 accessToken -> accessToken.startsWith(BEARER)
@@ -99,14 +85,6 @@ public class JwtConfig {
             log.error(e.getMessage());
             return Optional.empty();
         }
-    }
-
-    public void setAccessTokenHeader(HttpServletResponse response, String accessToken) {
-        response.setHeader(accessHeader, accessToken);
-    }
-
-    public void setRefreshTokenHeader(HttpServletResponse response, String refreshToken) {
-        response.setHeader(refreshHeader, refreshToken);
     }
 
     public boolean isTokenValid(String token){

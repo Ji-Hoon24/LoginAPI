@@ -2,7 +2,6 @@ package com.jh.loginapi.member.dto.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import lombok.Getter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,7 +11,7 @@ import static java.time.LocalDateTime.now;
 
 @Entity
 @Table(name="members")
-@Getter
+@Data
 public class Members {
 
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "members_seq")

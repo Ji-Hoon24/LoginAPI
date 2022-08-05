@@ -4,8 +4,10 @@ import com.jh.loginapi.config.ApiResultUtil.ApiResult;
 import com.jh.loginapi.member.dto.request.JoinRequest;
 import com.jh.loginapi.member.dto.request.LoginRequest;
 import com.jh.loginapi.member.dto.result.LoginResult;
+import com.jh.loginapi.member.dto.result.MyProfileResult;
 import com.jh.loginapi.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -41,8 +43,10 @@ public class MemberApiController {
 
     //TODO 4. 내 정보 보기
     @GetMapping("/myProfile")
-    public ApiResult<?> myProfile() {
+    public ApiResult<MyProfileResult> myProfile(@AuthenticationPrincipal String SMemberNo) {
+        long memberNo = Long.parseLong(SMemberNo);
+        MyProfileResult result = memberService.myProfile(memberNo);
 
-        return success(true);
+        return success(result);
     }
 }

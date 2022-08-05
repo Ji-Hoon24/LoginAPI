@@ -21,4 +21,6 @@ public interface MemberRepository extends JpaRepository<Members, Long> {
     @Query(value = "INSERT INTO Members(name,email,passwd,nickname,phone_num) VALUES (:#{#joinRequest.name}, :#{#joinRequest.email}, :#{#joinRequest.encodePasswd}, :#{#joinRequest.nickname}, :#{#joinRequest.phoneNum})", nativeQuery = true)
     Optional<Integer> save(JoinRequest joinRequest);
 
+    Optional<Members> findByMemberNo(long memberNo);
+
 }
