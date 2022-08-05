@@ -1,8 +1,7 @@
 package com.jh.loginapi.exception;
 
 import com.jh.loginapi.config.ApiResultUtil.ApiResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +16,9 @@ import javax.validation.ConstraintViolationException;
 
 import static com.jh.loginapi.config.ApiResultUtil.error;
 
+@Slf4j
 @ControllerAdvice
 public class GeneralExceptionHandler {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private ResponseEntity<ApiResult<?>> newResponse(Throwable throwable, HttpStatus status) {
         return newResponse(throwable.getMessage(), status);
