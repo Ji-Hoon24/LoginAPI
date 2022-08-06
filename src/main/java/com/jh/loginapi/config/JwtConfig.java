@@ -4,7 +4,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.jh.loginapi.member.dto.entity.Members;
 import com.jh.loginapi.member.dto.entity.Role;
-import com.jh.loginapi.redis.RedisService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -38,8 +36,6 @@ public class JwtConfig {
     private static final String USERID_CLAIM = "memberNo";
     private static final String USER_ROLE = "ROLE_USER";
     private static final String BEARER = "Bearer ";
-
-    private final RedisService redisService;
 
     public String createAccessToken(Members members) {
         return JWT.create()
@@ -97,4 +93,11 @@ public class JwtConfig {
         }
     }
 
+    public String getAccessHeader() {
+        return this.accessHeader;
+    }
+
+    public String getRefreshHeader() {
+        return this.refreshHeader;
+    }
 }

@@ -1,11 +1,9 @@
 package com.jh.loginapi.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jh.loginapi.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
@@ -56,6 +54,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     private boolean isPublic(HttpServletRequest request) {
         boolean isPublic = false;
         if (
+            request.getServletPath().equals("") ||
             request.getServletPath().equals("/api/member/login") ||
             request.getServletPath().equals("/api/member/join") ||
             request.getServletPath().equals("/api/member/passwdReset") ||

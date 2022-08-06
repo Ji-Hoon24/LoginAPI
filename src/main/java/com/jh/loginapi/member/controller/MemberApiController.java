@@ -1,6 +1,7 @@
 package com.jh.loginapi.member.controller;
 
 import com.jh.loginapi.config.ApiResultUtil.ApiResult;
+import com.jh.loginapi.exception.UnauthorizedException;
 import com.jh.loginapi.member.dto.request.JoinRequest;
 import com.jh.loginapi.member.dto.request.LoginRequest;
 import com.jh.loginapi.member.dto.request.PasswdResetRequest;
@@ -57,7 +58,12 @@ public class MemberApiController {
     @ApiOperation(value = "내 프로필 조회(엑세스 토큰 필수)")
     @GetMapping("/myProfile")
     public ApiResult<MyProfileResult> myProfile(@ApiParam(hidden = true) @AuthenticationPrincipal String SMemberNo) {
-        long memberNo = Long.parseLong(SMemberNo);
+        long memberNo = 0;
+        try {
+            memberNo = Long.parseLong(SMemberNo);
+        } catch (Exception e) {
+            throw new UnauthorizedException("토큰이 필요합니다.");
+        }
         MyProfileResult result = memberService.myProfile(memberNo);
 
         return success(result);
