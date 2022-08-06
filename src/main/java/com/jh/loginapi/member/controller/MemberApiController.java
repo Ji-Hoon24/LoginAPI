@@ -3,6 +3,7 @@ package com.jh.loginapi.member.controller;
 import com.jh.loginapi.config.ApiResultUtil.ApiResult;
 import com.jh.loginapi.member.dto.request.JoinRequest;
 import com.jh.loginapi.member.dto.request.LoginRequest;
+import com.jh.loginapi.member.dto.request.PasswdResetRequest;
 import com.jh.loginapi.member.dto.result.LoginResult;
 import com.jh.loginapi.member.dto.result.MyProfileResult;
 import com.jh.loginapi.member.service.MemberService;
@@ -37,8 +38,9 @@ public class MemberApiController {
 
     //TODO 3. 비밀번호 찾기 (재설정)
     @PostMapping("/passwdReset")
-    public ApiResult<?> passwdReset() {
-        return success(true);
+    public ApiResult<?> passwdReset(@Valid @RequestBody PasswdResetRequest request) {
+        boolean result = memberService.passwdReset(request);
+        return success(result);
     }
 
     @GetMapping("/myProfile")

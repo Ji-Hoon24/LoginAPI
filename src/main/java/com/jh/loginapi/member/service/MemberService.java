@@ -2,9 +2,9 @@ package com.jh.loginapi.member.service;
 
 import com.jh.loginapi.config.JwtConfig;
 import com.jh.loginapi.member.dto.entity.Members;
-import com.jh.loginapi.member.dto.entity.Role;
 import com.jh.loginapi.member.dto.request.JoinRequest;
 import com.jh.loginapi.member.dto.request.LoginRequest;
+import com.jh.loginapi.member.dto.request.PasswdResetRequest;
 import com.jh.loginapi.member.dto.result.LoginResult;
 import com.jh.loginapi.member.domain.MemberRepository;
 import com.jh.loginapi.member.dto.result.MyProfileResult;
@@ -58,12 +58,6 @@ public class MemberService {
     }
 
     public LoginResult login(LoginRequest loginRequest) {
-        /**
-         * 1. 메일을 기준으로 유저 정보 확인
-         * 2. 비밀번호 매칭으로 여부 확인
-         * 3. 최근 로그인 시간 및 로그인 카운트 증가
-         * 4. JWT 토큰 생성 및 Redis 저장
-         * */
         Members members = memberRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("아이디와 패스워드를 다시 확인 바랍니다."));
 
@@ -96,5 +90,27 @@ public class MemberService {
                 .nickname(members.getNickname())
                 .phoneNum(members.getPhoneNum())
                 .build();
+    }
+
+    public boolean passwdReset(PasswdResetRequest request) {
+        this.validPasswdReset(request);
+        String encodePasswd = passwordEncoder.encode(request.getNewPasswd());
+        request.setEncodePasswd(encodePasswd);
+
+        Optional<Integer> result = memberRepository.save(request);
+        if(!result.isPresent() && result.get() == 0) return false;
+
+        return true;
+    }
+
+    private void validPasswdReset(PasswdResetRequest request) {
+        Optional<Members> emailCheck = memberRepository.findByEmail(request.getEmail());
+        if(!emailCheck.isPresent()) {
+            throw new IllegalArgumentException("이메일 정보가 없습니다.");
+        }
+        String checkPhoneAuth = redisService.findPhoneAuthSuccess(request.getPhoneNum());
+        if(checkPhoneAuth == null || !checkPhoneAuth.equals("Y")) {
+            throw new IllegalArgumentException("핸드폰 인증이 필요합니다.");
+        }
     }
 }
