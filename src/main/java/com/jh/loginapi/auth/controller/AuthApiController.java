@@ -35,7 +35,7 @@ public class AuthApiController {
 
     @ApiOperation(value = "인증번호 확인")
     @PostMapping("/validAuth")
-    public ApiResult<?> validAuth(@Valid @RequestBody ValidAuthRequest validAuthRequest) {
+    public ApiResult<Boolean> validAuth(@Valid @RequestBody ValidAuthRequest validAuthRequest) {
         boolean result = authService.validAuth(validAuthRequest);
         return success(result);
    }
