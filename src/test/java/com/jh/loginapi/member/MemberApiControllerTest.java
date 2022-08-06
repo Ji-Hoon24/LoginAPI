@@ -3,6 +3,7 @@ package com.jh.loginapi.member;
 import com.jh.loginapi.config.JwtConfig;
 import com.jh.loginapi.member.controller.MemberApiController;
 import com.jh.loginapi.member.dto.entity.Members;
+import com.jh.loginapi.redis.RedisService;
 import com.jh.loginapi.security.WithMockJwtAuthentication;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,8 @@ public class MemberApiControllerTest {
 
     private JwtConfig jwtConfig;
 
+    private RedisService redisService;
+
     @Autowired
     public void setMockMvc(MockMvc mockMvc) {
         this.mockMvc = mockMvc;
@@ -38,6 +41,11 @@ public class MemberApiControllerTest {
     @Autowired
     public void setJwtConfig(JwtConfig jwtConfig) {
         this.jwtConfig = jwtConfig;
+    }
+
+    @Autowired
+    public void setRedisService(RedisService redisService) {
+        this.redisService = redisService;
     }
 
     @Test
@@ -114,7 +122,153 @@ public class MemberApiControllerTest {
                 .andExpect(jsonPath("$.success", is(false)))
                 .andExpect(jsonPath("$.error").exists())
                 .andExpect(jsonPath("$.error.status", is(401)))
-                .andExpect(jsonPath("$.error.message", is("토큰이 필요합니다.")))
-        ;
+                .andExpect(jsonPath("$.error.message", is("토큰이 필요합니다.")));
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 실패(전화번호 인증 전)")
+    void passwdResetFailTest() throws Exception {
+        ResultActions result = mockMvc.perform(
+                post("/api/member/passwdReset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"tester@tester.com\",\"newPasswd\":\"qwer1234!@\",\"phoneNum\":\"010-0000-0000\"}")
+        );
+
+        result.andDo(print())
+                .andExpect(status().is4xxClientError())
+                .andExpect(handler().handlerType(MemberApiController.class))
+                .andExpect(handler().methodName("passwdReset"))
+                .andExpect(jsonPath("$.success", is(false)))
+                .andExpect(jsonPath("$.error.status", is(400)))
+                .andExpect(jsonPath("$.error.message", is("전화번호 인증이 필요합니다.")));
+    }
+
+
+    @Test
+    @DisplayName("비밀번호 재설정 성공")
+    void passwdResetSuccessTest() throws Exception {
+        /**
+         * Redis에 데이터를 미리 강제로 주입해서 인증이 완료된 것 처럼 보이도록 해둠
+         * */
+        redisService.savePhoneAuthSuccess("010-0000-0000");
+
+        ResultActions result = mockMvc.perform(
+                post("/api/member/passwdReset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"12345@tester.com\",\"newPasswd\":\"qwer1234!@\",\"phoneNum\":\"010-0000-0000\"}")
+        );
+
+        result.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MemberApiController.class))
+                .andExpect(handler().methodName("passwdReset"))
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.response", is(true)));
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정시 계정 정보가 없는 경우")
+    void passwdResetEmailFailTest() throws Exception {
+        /**
+         * Redis에 데이터를 미리 강제로 주입해서 인증이 완료된 것 처럼 보이도록 해둠
+         * */
+        redisService.savePhoneAuthSuccess("010-0000-0000");
+
+        ResultActions result = mockMvc.perform(
+                post("/api/member/passwdReset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"test@tester.com\",\"newPasswd\":\"qwer1234!@\",\"phoneNum\":\"010-0000-0000\"}")
+        );
+
+        result.andDo(print())
+                .andExpect(status().is4xxClientError())
+                .andExpect(handler().handlerType(MemberApiController.class))
+                .andExpect(handler().methodName("passwdReset"))
+                .andExpect(jsonPath("$.success", is(false)))
+                .andExpect(jsonPath("$.error.message", is("이메일 정보가 없습니다.")))
+                .andExpect(jsonPath("$.error.status", is(400)));
+    }
+
+    @Test
+    @DisplayName("회원가입 실패(전화번호 인증 전)")
+    void joinFailTest() throws Exception {
+        ResultActions result = mockMvc.perform(
+                post("/api/member/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"test1@test.com\",\"passwd\":\"qwer1234!@\",\"phoneNum\":\"010-1234-5678\",\"name\":\"테스터\",\"nickname\":\"테스트닉네임\"}")
+        );
+
+        result.andDo(print())
+                .andExpect(status().is4xxClientError())
+                .andExpect(handler().handlerType(MemberApiController.class))
+                .andExpect(handler().methodName("join"))
+                .andExpect(jsonPath("$.success", is(false)))
+                .andExpect(jsonPath("$.error.status", is(400)))
+                .andExpect(jsonPath("$.error.message", is("전화번호 인증이 필요합니다.")));
+    }
+
+    @Test
+    @DisplayName("회원가입 실패(이메일 중복)")
+    void joinEmailFailTest() throws Exception {
+        ResultActions result = mockMvc.perform(
+                post("/api/member/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"tester@tester.com\",\"passwd\":\"qwer1234!@\",\"phoneNum\":\"010-1234-5678\",\"name\":\"테스터\",\"nickname\":\"테스트닉네임\"}")
+        );
+
+        result.andDo(print())
+                .andExpect(status().is4xxClientError())
+                .andExpect(handler().handlerType(MemberApiController.class))
+                .andExpect(handler().methodName("join"))
+                .andExpect(jsonPath("$.success", is(false)))
+                .andExpect(jsonPath("$.error.status", is(400)))
+                .andExpect(jsonPath("$.error.message", is("중복된 이메일이 있습니다.")));
+    }
+
+    @Test
+    @DisplayName("회원가입 실패(닉네임 중복)")
+    void joinNicknameFailTest() throws Exception {
+        ResultActions result = mockMvc.perform(
+                post("/api/member/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"test2@test.com\",\"passwd\":\"qwer1234!@\",\"phoneNum\":\"010-1234-5678\",\"name\":\"Tester\",\"nickname\":\"Tester\"}")
+        );
+
+        result.andDo(print())
+                .andExpect(status().is4xxClientError())
+                .andExpect(handler().handlerType(MemberApiController.class))
+                .andExpect(handler().methodName("join"))
+                .andExpect(jsonPath("$.success", is(false)))
+                .andExpect(jsonPath("$.error.status", is(400)))
+                .andExpect(jsonPath("$.error.message", is("중복된 닉네임이 있습니다.")));
+    }
+
+    @Test
+    @DisplayName("회원가입 성공")
+    void joinSuccessTest() throws Exception {
+        /**
+         * Redis에 데이터를 미리 강제로 주입해서 인증이 완료된 것 처럼 보이도록 해둠
+         * */
+        redisService.savePhoneAuthSuccess("010-1234-5678");
+
+        ResultActions result = mockMvc.perform(
+                post("/api/member/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"test3@test.com\",\"passwd\":\"qwer1234!@\",\"phoneNum\":\"010-1234-5678\",\"name\":\"테스터\",\"nickname\":\"테스트닉네임\"}")
+        );
+
+        result.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(handler().handlerType(MemberApiController.class))
+                .andExpect(handler().methodName("join"))
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.response", is(true)));
     }
 }
