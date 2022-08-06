@@ -1,7 +1,7 @@
-DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS members CASCADE;
 
 CREATE TABLE members (
-        member_no         bigint NOT NULL AUTO_INCREMENT, --사용자 PK
+        member_no       bigint NOT NULL AUTO_INCREMENT, --사용자 PK
         name            varchar(10) NOT NULL,           --사용자명
         email           varchar(50) NOT NULL,           --로그인 이메일
         passwd          varchar(80) NOT NULL,           --로그인 비밀번호
@@ -12,5 +12,6 @@ CREATE TABLE members (
         create_dt       datetime NOT NULL DEFAULT CURRENT_TIMESTAMP(),
         PRIMARY KEY (member_no),
         CONSTRAINT unq_user_email UNIQUE (email),
-        CONSTRAINT unq_user_nickname UNIQUE (nickname)
+        CONSTRAINT unq_user_nickname UNIQUE (nickname),
+        CONSTRAINT unq_user_phone_num UNIQUE (phone_num)
 );

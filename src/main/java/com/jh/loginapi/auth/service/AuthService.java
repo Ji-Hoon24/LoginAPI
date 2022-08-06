@@ -1,5 +1,7 @@
 package com.jh.loginapi.auth.service;
 
+import com.jh.loginapi.auth.dto.request.SendAuthRequest;
+import com.jh.loginapi.auth.dto.result.AuthResult;
 import com.jh.loginapi.config.JwtConfig;
 import com.jh.loginapi.exception.UnauthorizedException;
 import com.jh.loginapi.member.dto.entity.Members;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
+import java.util.Random;
 
 @RequiredArgsConstructor
 @Service
@@ -45,6 +48,37 @@ public class AuthService {
             return result;
         }
         throw new UnauthorizedException("로그인이 필요합니다.");
+    }
+
+    public AuthResult sendAuth(SendAuthRequest request) {
+        String authCode = this.randomAuthCode();
+        redisService.savePhoneAuthCode(request.getPhoneNum(), authCode);
+
+        return AuthResult.builder().authCode(authCode).build();
+    }
+
+    private String randomAuthCode() {
+        Random rand = new Random();
+        String numStr = "";
+        for (int i = 0; i < 4; i++) {
+            String ran = Integer.toString(rand.nextInt(10));
+            numStr += ran;
+        }
+        return numStr;
+    }
+
+    public boolean validAuth(SendAuthRequest request) {
+        String redisAuthCode = redisService.findPhoneAuthCode(request.getPhoneNum());
+        if(redisAuthCode == null) {
+            throw new IllegalArgumentException("인증 정보가 없습니다.");
+        }
+        if(redisAuthCode.equals(request.getAuthCode())) {
+            redisService.delete(request.getPhoneNum());
+            redisService.savePhoneAuthSuccess(request.getPhoneNum());
+            return true;
+        }
+
+        return false;
     }
 
 }

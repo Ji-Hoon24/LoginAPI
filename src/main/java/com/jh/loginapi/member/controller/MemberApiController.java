@@ -41,7 +41,6 @@ public class MemberApiController {
         return success(true);
     }
 
-    //TODO 4. 내 정보 보기
     @GetMapping("/myProfile")
     public ApiResult<MyProfileResult> myProfile(@AuthenticationPrincipal String SMemberNo) {
         long memberNo = Long.parseLong(SMemberNo);

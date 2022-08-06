@@ -60,9 +60,9 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             request.getServletPath().equals("/api/member/join") ||
             request.getServletPath().equals("/h2-console") ||
             request.getServletPath().equals("/swagger") ||
-            request.getServletPath().equals("/api/auth/refresh")
-//            request.getServletPath().equals("/user/refreshToken") ||
-
+            request.getServletPath().equals("/api/auth/refresh") ||
+            request.getServletPath().equals("/api/auth/sendAuth") ||
+            request.getServletPath().equals("/api/auth/validAuth")
         ) {
             isPublic = true;
         }

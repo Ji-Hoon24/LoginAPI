@@ -16,6 +16,10 @@ public class RedisService {
     @Value("${jwt.refresh.expiration}")
     private long refreshTokenValidityInSeconds;
 
+    private long phoneAuthValidityInSeconds = 180000;
+
+    private long phoneAuthSuccessValidityInSeconds = 86400000; //1일
+
     public void saveRefreshToken(long memberNo, String refreshToken) {
         redisTemplate.opsForValue()
             .set(String.valueOf(memberNo),
@@ -30,6 +34,30 @@ public class RedisService {
 
     public void delete(String key) {
         redisTemplate.delete(key);
+    }
+
+    public void savePhoneAuthCode(String phoneNum, String authCode) {
+        redisTemplate.opsForValue()
+                .set(String.valueOf(phoneNum),
+                        authCode,
+                        phoneAuthValidityInSeconds,
+                        TimeUnit.MILLISECONDS);
+    }
+
+    public String findPhoneAuthCode(String phoneNum) {
+        return redisTemplate.opsForValue().get(String.valueOf(phoneNum));
+    }
+
+    public void savePhoneAuthSuccess(String phoneNum) {
+        redisTemplate.opsForValue()
+                .set(String.valueOf(phoneNum),
+                        "Y",
+                        phoneAuthSuccessValidityInSeconds,
+                        TimeUnit.MILLISECONDS);
+    }
+
+    public String findPhoneAuthSuccess(String phoneNum) {
+        return redisTemplate.opsForValue().get(String.valueOf(phoneNum));
     }
 
 }

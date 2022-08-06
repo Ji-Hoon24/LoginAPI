@@ -51,6 +51,10 @@ public class MemberService {
         if(nicknameCheck.isPresent()) {
             throw new IllegalArgumentException("중복된 닉네임이 있습니다.");
         }
+        String checkPhoneAuth = redisService.findPhoneAuthSuccess(joinRequest.getPhoneNum());
+        if(checkPhoneAuth == null || !checkPhoneAuth.equals("Y")) {
+            throw new IllegalArgumentException("핸드폰 인증이 필요합니다.");
+        }
     }
 
     public LoginResult login(LoginRequest loginRequest) {
