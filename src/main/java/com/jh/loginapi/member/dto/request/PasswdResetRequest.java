@@ -1,5 +1,6 @@
 package com.jh.loginapi.member.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
@@ -9,10 +10,12 @@ import javax.validation.constraints.Pattern;
 @Data
 public class PasswdResetRequest {
 
+    @Schema(description = "이메일", example = "tester@tester.com")
     @NotBlank(message = "이메일은 필수 입력 값입니다.")
     @Email(message = "이메일 형식에 맞지 않습니다.")
     private String email;
 
+    @Schema(description = "전화번호", example = "010-0000-0000")
     @NotBlank(message = "전화번호는 필수 입력 값입니다.")
     private String phoneNum;
 

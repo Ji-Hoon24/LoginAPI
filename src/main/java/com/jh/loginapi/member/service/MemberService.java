@@ -38,6 +38,7 @@ public class MemberService {
 
         Optional<Integer> result = memberRepository.save(joinRequest);
         if(!result.isPresent() && result.get() == 0) return false;
+        redisService.delete(joinRequest.getPhoneNum());
 
         return true;
     }
@@ -53,7 +54,7 @@ public class MemberService {
         }
         String checkPhoneAuth = redisService.findPhoneAuthSuccess(joinRequest.getPhoneNum());
         if(checkPhoneAuth == null || !checkPhoneAuth.equals("Y")) {
-            throw new IllegalArgumentException("핸드폰 인증이 필요합니다.");
+            throw new IllegalArgumentException("전화번호 인증이 필요합니다.");
         }
     }
 
@@ -99,6 +100,7 @@ public class MemberService {
 
         Optional<Integer> result = memberRepository.save(request);
         if(!result.isPresent() && result.get() == 0) return false;
+        redisService.delete(request.getPhoneNum());
 
         return true;
     }
@@ -110,7 +112,7 @@ public class MemberService {
         }
         String checkPhoneAuth = redisService.findPhoneAuthSuccess(request.getPhoneNum());
         if(checkPhoneAuth == null || !checkPhoneAuth.equals("Y")) {
-            throw new IllegalArgumentException("핸드폰 인증이 필요합니다.");
+            throw new IllegalArgumentException("전화번호 인증이 필요합니다.");
         }
     }
 }

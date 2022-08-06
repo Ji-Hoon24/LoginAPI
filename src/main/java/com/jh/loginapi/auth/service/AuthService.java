@@ -1,6 +1,7 @@
 package com.jh.loginapi.auth.service;
 
 import com.jh.loginapi.auth.dto.request.SendAuthRequest;
+import com.jh.loginapi.auth.dto.request.ValidAuthRequest;
 import com.jh.loginapi.auth.dto.result.AuthResult;
 import com.jh.loginapi.config.JwtConfig;
 import com.jh.loginapi.exception.UnauthorizedException;
@@ -67,7 +68,7 @@ public class AuthService {
         return numStr;
     }
 
-    public boolean validAuth(SendAuthRequest request) {
+    public boolean validAuth(ValidAuthRequest request) {
         String redisAuthCode = redisService.findPhoneAuthCode(request.getPhoneNum());
         if(redisAuthCode == null) {
             throw new IllegalArgumentException("인증 정보가 없습니다.");

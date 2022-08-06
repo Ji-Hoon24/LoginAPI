@@ -7,7 +7,10 @@ import com.jh.loginapi.member.dto.request.PasswdResetRequest;
 import com.jh.loginapi.member.dto.result.LoginResult;
 import com.jh.loginapi.member.dto.result.MyProfileResult;
 import com.jh.loginapi.member.service.MemberService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,29 +25,38 @@ public class MemberApiController {
 
     private final MemberService memberService;
 
-    //TODO 1. 회원가입
+    @Value("${jwt.access.header}")
+    private String accessHeader;
+
+    @Value("${jwt.refresh.header}")
+    private String refreshHeader;
+
+    @ApiOperation(value = "회원가입(전화번호 인증 필수)")
     @PostMapping("/join")
     public ApiResult<Boolean> join(@Valid @RequestBody JoinRequest joinRequest) {
         boolean result = memberService.join(joinRequest);
         return success(result);
     }
 
-    //TODO 2. 로그인
+    @ApiOperation(value = "로그인")
     @PostMapping("/login")
-    public ApiResult<LoginResult> login(@RequestBody LoginRequest loginRequest) {
+    public ApiResult<LoginResult> login(@Valid @RequestBody LoginRequest loginRequest) {
         LoginResult result = memberService.login(loginRequest);
+
         return success(result);
     }
 
-    //TODO 3. 비밀번호 찾기 (재설정)
+
+    @ApiOperation(value = "비밀번호 재설정(전화번호 인증 필수)")
     @PostMapping("/passwdReset")
-    public ApiResult<?> passwdReset(@Valid @RequestBody PasswdResetRequest request) {
+    public ApiResult<Boolean> passwdReset(@Valid @RequestBody PasswdResetRequest request) {
         boolean result = memberService.passwdReset(request);
         return success(result);
     }
 
+    @ApiOperation(value = "내 프로필 조회(엑세스 토큰 필수)")
     @GetMapping("/myProfile")
-    public ApiResult<MyProfileResult> myProfile(@AuthenticationPrincipal String SMemberNo) {
+    public ApiResult<MyProfileResult> myProfile(@ApiParam(hidden = true) @AuthenticationPrincipal String SMemberNo) {
         long memberNo = Long.parseLong(SMemberNo);
         MyProfileResult result = memberService.myProfile(memberNo);
 

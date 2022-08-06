@@ -61,6 +61,8 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             request.getServletPath().equals("/api/member/passwdReset") ||
             request.getServletPath().equals("/h2-console") ||
             request.getServletPath().equals("/swagger") ||
+            request.getServletPath().indexOf("/swagger") > -1 ||
+            request.getServletPath().indexOf("/v2/api-docs") > -1 ||
             request.getServletPath().equals("/api/auth/refresh") ||
             request.getServletPath().equals("/api/auth/sendAuth") ||
             request.getServletPath().equals("/api/auth/validAuth")
