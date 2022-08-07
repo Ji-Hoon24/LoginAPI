@@ -28,6 +28,13 @@ Login API
 > User Name : sa<br>
 > Password : 
 
+### Swagger
+1. HttpHeader에 AccessToken 추가 방법<br>
+Authorize를 클릭 후 X-AUTH-TOKEN의 input에 `Bearer 엑세스토큰`을 입력하고 Authorize를 합니다.
+
+
+2. HttpHeader에 RefreshToken 추가 방법<br>
+Authorize를 클릭 후 X-REFRESH-TOKEN의 input에 `Bearer 리프레시토큰`을 입력하고 Authorize를 합니다.
 
 ---
 ## 사용 기술
