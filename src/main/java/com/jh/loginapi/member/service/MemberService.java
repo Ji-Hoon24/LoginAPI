@@ -12,10 +12,9 @@ import com.jh.loginapi.redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import static java.time.LocalDateTime.now;
 
 @RequiredArgsConstructor
 @Service
@@ -27,10 +26,9 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
 
-
     private final RedisService redisService;
 
-
+    @Transactional(rollbackFor = Exception.class)
     public boolean join(JoinRequest joinRequest) {
         this.validJoin(joinRequest);
         String encodePasswd = passwordEncoder.encode(joinRequest.getPasswd());
@@ -52,12 +50,17 @@ public class MemberService {
         if(nicknameCheck.isPresent()) {
             throw new IllegalArgumentException("중복된 닉네임이 있습니다.");
         }
+        Optional<Members> phoneNumCheck = memberRepository.findByPhoneNum(joinRequest.getPhoneNum());
+        if(phoneNumCheck.isPresent()) {
+            throw new IllegalArgumentException("중복된 전화번호가 있습니다.");
+        }
         String checkPhoneAuth = redisService.findPhoneAuthSuccess(joinRequest.getPhoneNum());
         if(checkPhoneAuth == null || !checkPhoneAuth.equals("Y")) {
             throw new IllegalArgumentException("전화번호 인증이 필요합니다.");
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public LoginResult login(LoginRequest loginRequest) {
         Members members = memberRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("아이디와 패스워드를 다시 확인 바랍니다."));
@@ -72,6 +75,7 @@ public class MemberService {
         return this.tokenCreate(members);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public LoginResult tokenCreate(Members members) {
         String accessToken = jwtConfig.createAccessToken(members);
         String refreshToken = jwtConfig.createRefreshToken();
@@ -93,6 +97,7 @@ public class MemberService {
                 .build();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public boolean passwdReset(PasswdResetRequest request) {
         this.validPasswdReset(request);
         String encodePasswd = passwordEncoder.encode(request.getNewPasswd());

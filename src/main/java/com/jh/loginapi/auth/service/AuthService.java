@@ -11,6 +11,7 @@ import com.jh.loginapi.member.service.MemberService;
 import com.jh.loginapi.redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
@@ -26,6 +27,7 @@ public class AuthService {
 
     private final MemberService memberService;
 
+    @Transactional(rollbackFor = Exception.class)
     public LoginResult newAccessToken(HttpServletRequest request) {
         String accessToken = jwtConfig.extractAccessToken(request).orElseThrow(
                 () -> new UnauthorizedException("엑세스 토큰이 필요합니다.")
@@ -51,6 +53,7 @@ public class AuthService {
         throw new UnauthorizedException("로그인이 필요합니다.");
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public AuthResult sendAuth(SendAuthRequest request) {
         String authCode = this.randomAuthCode();
         redisService.savePhoneAuthCode(request.getPhoneNum(), authCode);
@@ -68,6 +71,7 @@ public class AuthService {
         return numStr;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public boolean validAuth(ValidAuthRequest request) {
         String redisAuthCode = redisService.findPhoneAuthCode(request.getPhoneNum());
         if(redisAuthCode == null) {

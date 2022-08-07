@@ -251,6 +251,25 @@ public class MemberApiControllerTest {
     }
 
     @Test
+    @DisplayName("회원가입 실패(전화번호 중복)")
+    void joinPhoneNumFailTest() throws Exception {
+        ResultActions result = mockMvc.perform(
+                post("/api/member/join")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"test55@test.com\",\"passwd\":\"qwer1234!@\",\"phoneNum\":\"010-0000-0000\",\"name\":\"Tester1\",\"nickname\":\"Tester1\"}")
+        );
+
+        result.andDo(print())
+                .andExpect(status().is4xxClientError())
+                .andExpect(handler().handlerType(MemberApiController.class))
+                .andExpect(handler().methodName("join"))
+                .andExpect(jsonPath("$.success", is(false)))
+                .andExpect(jsonPath("$.error.status", is(400)))
+                .andExpect(jsonPath("$.error.message", is("중복된 전화번호가 있습니다.")));
+    }
+
+    @Test
     @DisplayName("회원가입 성공")
     void joinSuccessTest() throws Exception {
         /**
