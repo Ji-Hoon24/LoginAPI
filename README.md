@@ -1,8 +1,9 @@
 Login API
 =
+---
 
 ## 프로젝트 설명
-해당 API는 로컬에서 로그인을 해볼 수 있도록 구성되어 있습니다.
+해당 API는 로컬에서 회원가입 및 로그인을 해볼 수 있도록 구성되어 있습니다.
 
 로그인시 JWT로 생성된 `AccessToken`과 `RefreshToken`이 발급되며 `AccessToken`은 `5분`의 유효기간을 가지고, `RefreshToken`은 `10일`간의 유효기간을 가집니다.
 
@@ -13,7 +14,8 @@ Login API
 ---
 ## 실행 방법
 ### Gradle을 사용한 빌드
-> 해당 프로젝트 경로에서 Terminal (CMD) 실행<br>
+
+해당 프로젝트 경로에서 Terminal (cmd) 실행
 > ./gradlew clean build<br>
 > java -jar ./build/libs/LoginApi-0.0.1-SNAPSHOT.jar
 
@@ -31,7 +33,7 @@ Login API
 ## 사용 기술
 
 <p align="center">
-<img src="https://img.shields.io/badge/JAVA-007396?style=for-the-badge&logo=java&logoColor=white">
+<img src="https://img.shields.io/badge/JAVA_1.8-007396?style=for-the-badge&logo=java&logoColor=white">
 <img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=Spring Boot&logoColor=white">
 <img src="https://img.shields.io/badge/JUnit4-25A162?style=for-the-badge&logo=JUnit4&logoColor=white">
 <img src="https://img.shields.io/badge/H2-003545?style=for-the-badge&logo=H2&logoColor=white">
@@ -40,14 +42,14 @@ Login API
 <img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white">
 </p>
 
-> Java 1.8, SpringBoot 2.7.2를 기반으로 프로젝트를 구성하였습니다.<br>
-> 데이터베이스는 따로 설치하거나 셋팅할 필요 없이<br>
-> 인메모리 DB인 H2 Database와 Embedded-Redis로 어디서든 동일하게 테스트 할 수 있게 작성되었습니다.<br> 
+Java 1.8, SpringBoot 2.7.2를 기반으로 프로젝트를 구성하였습니다.<br>
+데이터베이스는 따로 설치하거나 셋팅할 필요 없이<br>
+인메모리 DB인 H2 Database와 Embedded-Redis로 어디서든 동일하게 테스트 할 수 있게 작성되었습니다.<br> 
 
 ---
 ## 구현 스펙
 ### 공통 참고사항
-모든 API는 application/json의 형태로 요청 및 응답을 진행합니다.
+모든 API는 `application/json`의 형태로 요청 및 응답을 진행합니다.
 
 API의 응답 형태는 아래의 예시 형태를 사용합니다.
 
@@ -194,4 +196,13 @@ X-REFRESH-TOKEN : Bearer RefreshToken
 ```
 
 ---
-## 신경쓴 부분
+## 설계시 중점적으로 고려한 부분
+
+1. Json Web Token<br>
+로그인 과정에서 발생하는 `JWT`에 대한 부분을 가장 많이 신경썼습니다.<br>
+유저의 정보를 지속적으로 서버에 저장하지 않아도 되도록 `JWT`를 이용하여 서버는 유저의 정보를 검증만 하도록 진행하였습니다.<br><br>
+`AccessToken`만 사용한다면 토큰이 탈취되었을 때 탈취자가 악의적인 이용을 지속적으로 할 수 있기 때문에 `RefreshToken`을 이용하여 이 부분을 방어하기 위한 설계를 진행하였습니다.<br><br>
+`RefreshToken`은 Redis에 10일정도 저장이 되고 해당 토큰을 이용하여 `AccessToken`이 재발급 되면 `RefreshToken` 또한 재발급이 되도록 하여 탈취자가 해당 토큰들을 탈취하더라도 지속적인 토큰 재발급으로 문제가 발생할 소지를 최소화 하였습니다.<br><br>
+
+3. API Response<br>
+API의 Response의 형태를 공통화 하여 각 API의 결과를 확인하기 쉽도록 작업하였습니다.
