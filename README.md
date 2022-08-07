@@ -1,6 +1,5 @@
 Login API
 =
----
 
 ## 프로젝트 설명
 해당 API는 로컬에서 로그인을 해볼 수 있도록 구성되어 있습니다.
@@ -11,9 +10,24 @@ Login API
 
 `AccessToken`이 만료되었을 경우 `RefreshToken`을 `X-REFRESH-TOKEN : Bearer 리프레시 토큰` 형태로 `AccessToken`과 함께 보내주면 새로 발급된 토큰을 만들어줍니다. 
 
+---
 ## 실행 방법
+### Gradle을 사용한 빌드
+> 해당 프로젝트 경로에서 Terminal (CMD) 실행<br>
+> ./gradlew clean build<br>
+> java -jar ./build/libs/LoginApi-0.0.1-SNAPSHOT.jar
+
+실행에 성공하면 `7777`번 포트로 서버가 동작합니다.
+1. `/swagger`로 진입하면 swagger를 이용한 API 테스트를 진행할 수 있습니다.
+2. `/h2-console` 로 진입하면 H2 Database를 확인할 수 있습니다.
+
+> H2 계정 정보<br>
+> JDBC URL : jdbc:h2:mem:spring_assignments;MODE=MYSQL;<br>
+> User Name : sa<br>
+> Password : 
 
 
+---
 ## 사용 기술
 
 <p align="center">
@@ -30,6 +44,7 @@ Login API
 > 데이터베이스는 따로 설치하거나 셋팅할 필요 없이<br>
 > 인메모리 DB인 H2 Database와 Embedded-Redis로 어디서든 동일하게 테스트 할 수 있게 작성되었습니다.<br> 
 
+---
 ## 구현 스펙
 ### 공통 참고사항
 모든 API는 application/json의 형태로 요청 및 응답을 진행합니다.
@@ -178,4 +193,5 @@ X-AUTH-TOKEN : Bearer AccessToken
 X-REFRESH-TOKEN : Bearer RefreshToken  
 ```
 
+---
 ## 신경쓴 부분
