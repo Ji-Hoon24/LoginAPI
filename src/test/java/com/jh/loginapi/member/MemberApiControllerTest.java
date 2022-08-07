@@ -20,6 +20,7 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -129,7 +130,7 @@ public class MemberApiControllerTest {
     @DisplayName("비밀번호 재설정 실패(전화번호 인증 전)")
     void passwdResetFailTest() throws Exception {
         ResultActions result = mockMvc.perform(
-                post("/api/member/passwdReset")
+                put("/api/member/passwdReset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"tester@tester.com\",\"newPasswd\":\"qwer1234!@\",\"phoneNum\":\"010-0000-0000\"}")
@@ -154,7 +155,7 @@ public class MemberApiControllerTest {
         redisService.savePhoneAuthSuccess("010-0000-0000");
 
         ResultActions result = mockMvc.perform(
-                post("/api/member/passwdReset")
+                put("/api/member/passwdReset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"12345@tester.com\",\"newPasswd\":\"qwer1234!@\",\"phoneNum\":\"010-0000-0000\"}")
@@ -177,7 +178,7 @@ public class MemberApiControllerTest {
         redisService.savePhoneAuthSuccess("010-0000-0000");
 
         ResultActions result = mockMvc.perform(
-                post("/api/member/passwdReset")
+                put("/api/member/passwdReset")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"test@tester.com\",\"newPasswd\":\"qwer1234!@\",\"phoneNum\":\"010-0000-0000\"}")

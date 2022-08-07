@@ -49,7 +49,7 @@ public class MemberApiController {
 
 
     @ApiOperation(value = "비밀번호 재설정(전화번호 인증 필수)")
-    @PostMapping("/passwdReset")
+    @PutMapping("/passwdReset")
     public ApiResult<Boolean> passwdReset(@Valid @RequestBody PasswdResetRequest request) {
         boolean result = memberService.passwdReset(request);
         return success(result);
