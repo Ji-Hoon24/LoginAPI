@@ -147,13 +147,13 @@ public class AuthApiControllerTest {
     @Test
     @DisplayName("인증번호 확인 성공")
     void validAuthSuccessTest() throws Exception {
-        redisService.savePhoneAuthCode("010-1234-5678", "5789");
+        redisService.savePhoneAuthCode("010-3333-4444", "5789");
 
         ResultActions result = mockMvc.perform(
                 post("/api/auth/validAuth")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .content("{\"phoneNum\":\"010-1234-5678\", \"authCode\":\"5789\"}")
+                        .content("{\"phoneNum\":\"010-3333-4444\", \"authCode\":\"5789\"}")
         );
 
         result.andDo(print())
@@ -162,6 +162,7 @@ public class AuthApiControllerTest {
                 .andExpect(handler().methodName("validAuth"))
                 .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.response", is(true)));
+        redisService.delete("010-3333-4444");
     }
 
     @Test
