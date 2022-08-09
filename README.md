@@ -5,15 +5,19 @@ Login API
 ## 프로젝트 설명
 해당 API는 로컬에서 회원가입 및 로그인을 해볼 수 있도록 구성되어 있습니다.
 
+### 회원가입
+회원가입시 휴대전화번호를 기준으로 인증이 필요하며 인증 절차를 거치지 않은 번호는 회원가입 할 수 없도록 되어있습니다.
+
+### 로그인
 로그인시 JWT로 생성된 `AccessToken`과 `RefreshToken`이 발급되며 `AccessToken`은 `5분`의 유효기간을 가지고, `RefreshToken`은 `10일`간의 유효기간을 가집니다.
 
 발급된 토큰으로 통신을 진행할 수 있으며 HttpHeader에 `X-AUTH-TOKEN : Bearer 엑세스 토큰` 형태로 `AccessToken`을 넣어주어야 합니다.
 
-`AccessToken`이 만료되었을 경우 `RefreshToken`을 `X-REFRESH-TOKEN : Bearer 리프레시 토큰` 형태로 `AccessToken`과 함께 보내주면 새로 발급된 토큰을 만들어줍니다. 
+`AccessToken`이 만료되었을 경우 `RefreshToken`을 `X-REFRESH-TOKEN : Bearer 리프레시 토큰` 형태로 `AccessToken`과 함께 보내주면 새로 발급된 토큰을 만들어줍니다.
 
 ---
 ## 실행 방법
-### Gradle을 사용한 빌드
+### Java 1.8 필수
 
 해당 프로젝트 경로에서 Terminal (cmd) 실행
 > ./gradlew clean build<br>
