@@ -27,47 +27,23 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        if(isPublic((HttpServletRequest) request)) {
+        String token = jwtConfig.extractAccessToken((HttpServletRequest) request).orElse(null);
+        if(token != null && jwtConfig.isTokenValid(token)) {
+            String memberNo = jwtConfig.extractMemberNo(token).get();
+            String memberRole = jwtConfig.extractMemberRole(token).get();
+
+            Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+            authorities.add(new SimpleGrantedAuthority(memberRole));
+
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    memberNo, null, authorities);
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             chain.doFilter(request, response);
         } else {
-            String token = jwtConfig.extractAccessToken((HttpServletRequest) request).orElse(null);
-            if(token != null && jwtConfig.isTokenValid(token)) {
-                String memberNo = jwtConfig.extractMemberNo(token).get();
-                String memberRole = jwtConfig.extractMemberRole(token).get();
-
-                Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority(memberRole));
-
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        memberNo, null, authorities);
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                chain.doFilter(request, response);
-            } else {
-                HttpServletResponse httpResponse = (HttpServletResponse) response;
-                httpResponse.setContentType("application/json");
-                httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-                new ObjectMapper().writeValue(response.getOutputStream(), error("토큰이 필요합니다.", HttpStatus.UNAUTHORIZED));
-            }
+            HttpServletResponse httpResponse = (HttpServletResponse) response;
+            httpResponse.setContentType("application/json");
+            httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+            new ObjectMapper().writeValue(response.getOutputStream(), error("토큰이 필요합니다.", HttpStatus.UNAUTHORIZED));
         }
-    }
-
-    private boolean isPublic(HttpServletRequest request) {
-        boolean isPublic = false;
-        if (
-            request.getServletPath().equals("") ||
-            request.getServletPath().equals("/api/member/login") ||
-            request.getServletPath().equals("/api/member/join") ||
-            request.getServletPath().equals("/api/member/passwdReset") ||
-            request.getServletPath().equals("/h2-console") ||
-            request.getServletPath().equals("/swagger") ||
-            request.getServletPath().indexOf("/swagger") > -1 ||
-            request.getServletPath().indexOf("/v2/api-docs") > -1 ||
-            request.getServletPath().equals("/api/auth/refresh") ||
-            request.getServletPath().equals("/api/auth/sendAuth") ||
-            request.getServletPath().equals("/api/auth/validAuth")
-        ) {
-            isPublic = true;
-        }
-        return isPublic;
     }
 }

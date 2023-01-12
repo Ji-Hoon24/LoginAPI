@@ -14,7 +14,8 @@ import static java.time.LocalDateTime.now;
 @Data
 public class Members {
 
-    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "members_seq")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "members_seq")
     @Schema(description = "사용자 고유값(PK)")
     private long memberNo;
 
