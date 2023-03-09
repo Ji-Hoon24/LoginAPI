@@ -29,8 +29,8 @@ public class MemberApiController {
     @ApiOperation(value = "회원가입(전화번호 인증 필수)")
     @PostMapping("/join")
     public ApiResult<Boolean> join(@Valid @RequestBody JoinRequest joinRequest) {
-        boolean result = memberService.join(joinRequest);
-        return success(result);
+        memberService.join(joinRequest);
+        return success();
     }
 
     @ApiOperation(value = "로그인")

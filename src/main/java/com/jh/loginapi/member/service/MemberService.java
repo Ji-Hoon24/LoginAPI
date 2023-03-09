@@ -29,7 +29,7 @@ public class MemberService {
     private final RedisService redisService;
 
     @Transactional(rollbackFor = Exception.class)
-    public boolean join(JoinRequest joinRequest) {
+    public void join(JoinRequest joinRequest) {
         this.validJoin(joinRequest);
         String encodePasswd = passwordEncoder.encode(joinRequest.getPasswd());
         joinRequest.setEncodePasswd(encodePasswd);
@@ -43,26 +43,27 @@ public class MemberService {
                 .build();
 
 
-        Members result = memberRepository.save(members);
-        if(result == null) return false;
+        memberRepository.save(members);
         redisService.delete(joinRequest.getPhoneNum());
-
-        return true;
     }
 
     private void validJoin(JoinRequest joinRequest) {
-        Optional<Members> emailCheck = memberRepository.findByEmail(joinRequest.getEmail());
-        if(emailCheck.isPresent()) {
-            throw new IllegalArgumentException("중복된 이메일이 있습니다.");
+        Optional<Members> members = memberRepository.findByEmailOrNickNameOrPhoneNum(joinRequest.getEmail(), joinRequest.getNickname(), joinRequest.getPhoneNum());
+        if(members.isPresent()) {
+            Members membersEntity = members.get();
+            if(membersEntity.getEmail().equals(joinRequest.getEmail())) {
+                throw new IllegalArgumentException("중복된 이메일이 있습니다.");
+            }
+
+            if(membersEntity.getNickname().equals(joinRequest.getNickname())) {
+                throw new IllegalArgumentException("중복된 닉네임이 있습니다.");
+            }
+
+            if(membersEntity.getPhoneNum().equals(joinRequest.getPhoneNum())) {
+                throw new IllegalArgumentException("중복된 전화번호가 있습니다.");
+            }
         }
-        Optional<Members> nicknameCheck = memberRepository.findByNickname(joinRequest.getNickname());
-        if(nicknameCheck.isPresent()) {
-            throw new IllegalArgumentException("중복된 닉네임이 있습니다.");
-        }
-        Optional<Members> phoneNumCheck = memberRepository.findByPhoneNum(joinRequest.getPhoneNum());
-        if(phoneNumCheck.isPresent()) {
-            throw new IllegalArgumentException("중복된 전화번호가 있습니다.");
-        }
+
         String checkPhoneAuth = redisService.findPhoneAuthSuccess(joinRequest.getPhoneNum());
         if(checkPhoneAuth == null || !checkPhoneAuth.equals("Y")) {
             throw new IllegalArgumentException("전화번호 인증이 필요합니다.");
