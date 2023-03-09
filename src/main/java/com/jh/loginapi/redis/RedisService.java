@@ -1,9 +1,13 @@
 package com.jh.loginapi.redis;
 
+import com.jh.loginapi.config.JwtConfig;
+import com.jh.loginapi.member.dto.entity.Members;
+import com.jh.loginapi.member.dto.result.LoginResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
@@ -12,6 +16,8 @@ import java.util.concurrent.TimeUnit;
 public class RedisService {
 
     private final RedisTemplate<String, String> redisTemplate;
+
+    private final JwtConfig jwtConfig;
 
     @Value("${jwt.refresh.expiration}")
     private long refreshTokenValidityInSeconds;
@@ -58,6 +64,15 @@ public class RedisService {
 
     public String findPhoneAuthSuccess(String phoneNum) {
         return redisTemplate.opsForValue().get(String.valueOf(phoneNum));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public LoginResult tokenCreate(Members members) {
+        String accessToken = jwtConfig.createAccessToken(members);
+        String refreshToken = jwtConfig.createRefreshToken();
+
+        this.saveRefreshToken(members.getMemberNo(), refreshToken);
+        return LoginResult.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
 
 }

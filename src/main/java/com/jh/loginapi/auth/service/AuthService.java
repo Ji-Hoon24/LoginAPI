@@ -25,8 +25,6 @@ public class AuthService {
 
     private final RedisService redisService;
 
-    private final MemberService memberService;
-
     @Transactional(rollbackFor = Exception.class)
     public LoginResult newAccessToken(HttpServletRequest request) {
         String accessToken = jwtConfig.extractAccessToken(request).orElseThrow(
@@ -46,7 +44,7 @@ public class AuthService {
 
         if(refreshToken.equals(redisRefreshToken) && jwtConfig.isTokenValid(refreshToken)) {
             Members members = Members.builder().memberNo(memberNo).build();
-            LoginResult result = memberService.tokenCreate(members);
+            LoginResult result = redisService.tokenCreate(members);
             return result;
         }
         throw new UnauthorizedException("로그인이 필요합니다.");

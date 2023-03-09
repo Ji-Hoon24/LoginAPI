@@ -74,23 +74,14 @@ public class MemberService {
         Members members = memberRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("아이디와 패스워드를 다시 확인 바랍니다."));
 
-        if(!passwordEncoder.matches(loginRequest.getPasswd(), members.getPasswd())){
+        if (!passwordEncoder.matches(loginRequest.getPasswd(), members.getPasswd())) {
             throw new IllegalArgumentException("아이디와 패스워드를 다시 확인 바랍니다.");
         }
 
         members.afterLoginSuccess();
         memberRepository.save(members);
 
-        return this.tokenCreate(members);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public LoginResult tokenCreate(Members members) {
-        String accessToken = jwtConfig.createAccessToken(members);
-        String refreshToken = jwtConfig.createRefreshToken();
-
-        redisService.saveRefreshToken(members.getMemberNo(), refreshToken);
-        return LoginResult.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+        return redisService.tokenCreate(members);
     }
 
     public MyProfileResult myProfile(long memberNo) {
