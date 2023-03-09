@@ -1,7 +1,7 @@
 package com.jh.loginapi.member.dto.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -9,9 +9,12 @@ import java.time.LocalDateTime;
 import static java.time.LocalDateTime.now;
 
 
+@Builder
 @Entity
 @Table(name="members")
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
 public class Members {
 
     @Id
@@ -46,5 +49,9 @@ public class Members {
     public void afterLoginSuccess() {
         this.loginCount++;
         this.lastLoginDt = now();
+    }
+
+    public void updatePassword(String passwd) {
+        this.passwd = passwd;
     }
 }

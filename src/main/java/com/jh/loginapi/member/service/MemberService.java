@@ -34,8 +34,17 @@ public class MemberService {
         String encodePasswd = passwordEncoder.encode(joinRequest.getPasswd());
         joinRequest.setEncodePasswd(encodePasswd);
 
-        Optional<Integer> result = memberRepository.save(joinRequest);
-        if(!result.isPresent() && result.get() == 0) return false;
+        Members members = Members.builder()
+                .email(joinRequest.getEmail())
+                .name(joinRequest.getName())
+                .nickname(joinRequest.getNickname())
+                .phoneNum(joinRequest.getPhoneNum())
+                .passwd(encodePasswd)
+                .build();
+
+
+        Members result = memberRepository.save(members);
+        if(result == null) return false;
         redisService.delete(joinRequest.getPhoneNum());
 
         return true;
@@ -98,26 +107,22 @@ public class MemberService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public boolean passwdReset(PasswdResetRequest request) {
-        this.validPasswdReset(request);
+    public void passwdReset(PasswdResetRequest request) {
+        Members membersEntity = this.validPasswdReset(request);
         String encodePasswd = passwordEncoder.encode(request.getNewPasswd());
-        request.setEncodePasswd(encodePasswd);
-
-        Optional<Integer> result = memberRepository.save(request);
-        if(!result.isPresent() && result.get() == 0) return false;
+        membersEntity.updatePassword(encodePasswd);
+        memberRepository.save(membersEntity);
         redisService.delete(request.getPhoneNum());
-
-        return true;
     }
 
-    private void validPasswdReset(PasswdResetRequest request) {
-        Optional<Members> emailCheck = memberRepository.findByEmail(request.getEmail());
-        if(!emailCheck.isPresent()) {
-            throw new IllegalArgumentException("이메일 정보가 없습니다.");
-        }
+    private Members validPasswdReset(PasswdResetRequest request) {
+        Members membersEntity = memberRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException("이메일 정보가 없습니다."));
+
         String checkPhoneAuth = redisService.findPhoneAuthSuccess(request.getPhoneNum());
         if(checkPhoneAuth == null || !checkPhoneAuth.equals("Y")) {
             throw new IllegalArgumentException("전화번호 인증이 필요합니다.");
         }
+
+        return membersEntity;
     }
 }

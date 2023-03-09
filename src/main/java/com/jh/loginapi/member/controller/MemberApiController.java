@@ -26,12 +26,6 @@ public class MemberApiController {
 
     private final MemberService memberService;
 
-    @Value("${jwt.access.header}")
-    private String accessHeader;
-
-    @Value("${jwt.refresh.header}")
-    private String refreshHeader;
-
     @ApiOperation(value = "회원가입(전화번호 인증 필수)")
     @PostMapping("/join")
     public ApiResult<Boolean> join(@Valid @RequestBody JoinRequest joinRequest) {
@@ -51,8 +45,8 @@ public class MemberApiController {
     @ApiOperation(value = "비밀번호 재설정(전화번호 인증 필수)")
     @PutMapping("/passwdReset")
     public ApiResult<Boolean> passwdReset(@Valid @RequestBody PasswdResetRequest request) {
-        boolean result = memberService.passwdReset(request);
-        return success(result);
+        memberService.passwdReset(request);
+        return success();
     }
 
     @ApiOperation(value = "내 프로필 조회(엑세스 토큰 필수)")

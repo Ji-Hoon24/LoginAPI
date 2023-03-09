@@ -92,8 +92,6 @@ public class MemberApiControllerTest {
     @WithMockJwtAuthentication
     @DisplayName("내 정보 조회 성공 테스트 (토큰이 올바른 경우)")
     void myProfileSuccessTest() throws Exception {
-        Members members = new Members();
-        members.setMemberNo(1L);
         ResultActions result = mockMvc.perform(
                 get("/api/member/myProfile")
                         .accept(MediaType.APPLICATION_JSON)

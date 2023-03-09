@@ -168,8 +168,7 @@ public class AuthApiControllerTest {
     @Test
     @DisplayName("리프레시 토큰 발급 실패(리프레시 토큰 없음)")
     void refreshNonRefreshTokenFailTest() throws Exception {
-        Members members = new Members();
-        members.setMemberNo(1);
+        Members members = Members.builder().memberNo(1).build();
         String accessToken = jwtConfig.createAccessToken(members);
         ResultActions result = mockMvc.perform(
                 post("/api/auth/refresh")
@@ -213,8 +212,7 @@ public class AuthApiControllerTest {
     @Test
     @DisplayName("리프레시 토큰으로 엑세스 토큰 재발급 성공")
     void refreshSuccessTest() throws Exception {
-        Members members = new Members();
-        members.setMemberNo(1);
+        Members members = Members.builder().memberNo(1).build();
         String accessToken = jwtConfig.createAccessToken(members);
         String refreshToken = jwtConfig.createRefreshToken();
         redisService.saveRefreshToken(1, refreshToken);

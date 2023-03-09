@@ -1,5 +1,6 @@
 package com.jh.loginapi.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+@Slf4j
 @Configuration
 public class EmbeddedRedisConfig {
 
@@ -22,6 +24,7 @@ public class EmbeddedRedisConfig {
     @PostConstruct
     public void redisServer() throws IOException {
         int port = isRedisRunning()? findAvailablePort() : redisPort;
+        log.info("Redis Port : " + port);
         redisServer = new RedisServer(port);
         redisServer.start();
     }
@@ -63,7 +66,6 @@ public class EmbeddedRedisConfig {
         String command = "";
         String[] shell = null;
         if (os.contains("win")) {
-            System.out.println("Windows");
             command = String.format("netstat -nao | find \"LISTEN\" | find \"%d\"", port);
             shell = new String[]{"cmd.exe", "/y", "/c", command};
         } else if (os.contains("nix") || os.contains("nux") || os.contains("aix") || os.contains("mac")) {

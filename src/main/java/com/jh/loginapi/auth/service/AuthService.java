@@ -45,8 +45,7 @@ public class AuthService {
         String redisRefreshToken = redisService.findRefreshToken(memberNo);
 
         if(refreshToken.equals(redisRefreshToken) && jwtConfig.isTokenValid(refreshToken)) {
-            Members members = new Members();
-            members.setMemberNo(memberNo);
+            Members members = Members.builder().memberNo(memberNo).build();
             LoginResult result = memberService.tokenCreate(members);
             return result;
         }
