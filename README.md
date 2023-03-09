@@ -17,7 +17,7 @@ Login API
 
 ---
 ## 실행 방법
-### Java 1.8 필수
+### Java 17 필수
 
 해당 프로젝트 경로에서 Terminal (cmd) 실행
 > ./gradlew clean build<br>
@@ -44,7 +44,7 @@ Authorize를 클릭 후 X-REFRESH-TOKEN의 input에 `Bearer 리프레시토큰`�
 ## 사용 기술
 
 <p align="center">
-<img src="https://img.shields.io/badge/JAVA_1.8-007396?style=for-the-badge&logo=java&logoColor=white">
+<img src="https://img.shields.io/badge/JAVA_17-007396?style=for-the-badge&logo=java&logoColor=white">
 <img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=Spring Boot&logoColor=white">
 <img src="https://img.shields.io/badge/JUnit4-25A162?style=for-the-badge&logo=JUnit4&logoColor=white">
 <img src="https://img.shields.io/badge/H2-003545?style=for-the-badge&logo=H2&logoColor=white">
@@ -53,7 +53,7 @@ Authorize를 클릭 후 X-REFRESH-TOKEN의 input에 `Bearer 리프레시토큰`�
 <img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white">
 </p>
 
-Java 1.8, SpringBoot 2.7.2를 기반으로 프로젝트를 구성하였습니다.<br>
+Java 17, SpringBoot 2.7.2를 기반으로 프로젝트를 구성하였습니다.<br>
 데이터베이스는 따로 설치하거나 셋팅할 필요 없이<br>
 인메모리 DB인 H2 Database와 Embedded-Redis로 어디서든 동일하게 테스트 할 수 있게 작성되었습니다.<br> 
 
