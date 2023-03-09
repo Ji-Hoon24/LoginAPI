@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -48,9 +48,8 @@ public class MemberService {
     }
 
     private void validJoin(JoinRequest joinRequest) {
-        Optional<Members> members = memberRepository.findByEmailOrNickNameOrPhoneNum(joinRequest.getEmail(), joinRequest.getNickname(), joinRequest.getPhoneNum());
-        if(members.isPresent()) {
-            Members membersEntity = members.get();
+        List<Members> members = memberRepository.findByEmailOrNicknameOrPhoneNum(joinRequest.getEmail(), joinRequest.getNickname(), joinRequest.getPhoneNum());
+        for(Members membersEntity : members) {
             if(membersEntity.getEmail().equals(joinRequest.getEmail())) {
                 throw new IllegalArgumentException("중복된 이메일이 있습니다.");
             }

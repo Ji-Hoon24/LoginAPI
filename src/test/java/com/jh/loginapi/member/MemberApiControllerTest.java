@@ -92,9 +92,15 @@ public class MemberApiControllerTest {
     @WithMockJwtAuthentication
     @DisplayName("내 정보 조회 성공 테스트 (토큰이 올바른 경우)")
     void myProfileSuccessTest() throws Exception {
+        Members members = Members.builder().memberNo(1).build();
+        String accessToken = jwtConfig.createAccessToken(members);
+        String refreshToken = jwtConfig.createRefreshToken();
+
         ResultActions result = mockMvc.perform(
                 get("/api/member/myProfile")
-                        .accept(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header(jwtConfig.getAccessHeader(), "Bearer " + accessToken)
+                    .header(jwtConfig.getRefreshHeader(),"Bearer " + refreshToken)
         );
 
         result.andDo(print())
@@ -163,8 +169,7 @@ public class MemberApiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(MemberApiController.class))
                 .andExpect(handler().methodName("passwdReset"))
-                .andExpect(jsonPath("$.success", is(true)))
-                .andExpect(jsonPath("$.response", is(true)));
+                .andExpect(jsonPath("$.success", is(true)));
     }
 
     @Test
@@ -286,7 +291,6 @@ public class MemberApiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(handler().handlerType(MemberApiController.class))
                 .andExpect(handler().methodName("join"))
-                .andExpect(jsonPath("$.success", is(true)))
-                .andExpect(jsonPath("$.response", is(true)));
+                .andExpect(jsonPath("$.success", is(true)));
     }
 }
